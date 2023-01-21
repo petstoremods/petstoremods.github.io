@@ -1,0 +1,63 @@
+<h1>3 Reasons I use Emacs for my Buttplug</h1>
+
+<pre style="overflow-x:auto;word-wrap:break-word;white-space:pre-wrap">
+Let me guess, you use a "modern" editor like vscode  *smirks*. Hahaha.
+Well, you wouldn't be here if you were a typical Emacs user. Otherwise this would just be another Friday. 
+
+Now behold, my awesome power, and bow before me. 
+Sparing the <a href="https://github.com/petstoremods/butt-el">implementation details</a>, I created a function that calls a process to vibrate my toy. 
+This lets me do some <i>interesting</i> things. 
+
+#+BEGIN_CODE elisp
+;; Reason 1. Events
+;; Emacs has hooks, which is basically an event you can subscribe a function to.
+;; They are prefect for if you want to hook it into a (perhaps suacy) game,
+;; or a heated conversation on telegram or irc.
+;; However, they can also serve a functional purpose. 
+;; Here I tell emacs to vibrate my plug if I ever misspell a word or type in a syntax error.
+(add-hook 'flyspell-incorrect-hook '(lambda (beg end corrections) (vibe 1 1)))
+
+;; Reason 2. Keyboard shortcuts
+;; Emacs lets you keybind to anything.
+;; I find I can control my device much more efficiently than in the app.
+;; Here are some example patterns and bindings I use.
+(defun relax ()
+  (interactive)
+  (vibe 10 1)
+  (sleep-for 1.5) ;;remember the process is async. This doesn't need to be perfect, but we'll have ~.5 seconds between buzzes.
+  (relax))
+
+;; The only fun way to teach recursion:
+(defun climb-helper (iter)
+  (when (< iter 21)
+   (vibe iter 1)
+   (sleep-for 2)
+   (climb-helper (+ iter 1))))
+
+(defun climb ()
+  (interactive)
+  (climb-helper 0))
+
+;; Note: `C g` will stop the loop, but the last `vibe` call will keep running until it's finished
+(global-set-key (kbd "M-s q") 'climb)
+(global-set-key (kbd "M-s w") 'relax)
+
+;; Reason 3. GUI
+;; Emacs makes writing GUI applications very simple. 
+;; If I don't feel like using a keyboard, such as when a hand might be busy, then a mouse is perfectly fine. 
+(insert-button "Easy"
+  'action '(lambda (e) (vibe 1 1))
+  'face 'eww-form-submit)
+
+(insert-button "Medium"
+  'action '(lambda (e) (vibe 10 5))
+  'face 'eww-form-submit)
+
+(insert-button "Hard"
+  'action '(lambda (e) (vibe 20 10))
+  'face 'eww-form-submit)
+#+END_CODE
+
+Let's just say the office lets me work from home now. 
+
+</pre>
