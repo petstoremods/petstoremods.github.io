@@ -1,0 +1,24 @@
+h1 {
+    background-color: white;
+    width: max-content;
+    padding: 1ex;
+}
+
+pre {
+    width: max-content;
+    background-color: white;
+    padding: 1em;
+    overflow-x: auto;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+body {
+    background-color: blue;
+}
+
+.code {
+    font-family: 'Courier New', monospace;
+    filter: brightness(85%);
+    background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
+}

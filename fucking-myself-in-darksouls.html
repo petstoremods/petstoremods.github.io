@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="style.css">
+<title>Fucking Myself in DarkSouls</title>
+<h1>Fucking Myself in DarkSouls... Literally</h1>
+
+<pre style="overflow-x:auto;word-wrap:break-word;white-space:pre-wrap">
+In my <a href="elisp-buttplug.html">last article</a>, I experimented with connecting to my <a href="https://www.lovense.com/">Lovense</a> devices in Emacs.
+I decided to take this a step further with a little game hacking.
+
+<b>tl;dr: I tied the vibrations of my toys to in-game attributes, such as souls.
+Code will be made public on github after some more testing.
+</b>
+<h2>Reading Game Memory</h2>First, I needed to create a process to read memory of games at an arbitrary location.
+This allows me to use Cheat Engine tables to get any value I may want to bind my toys to.
+I already had the code for vibrating my toys, so with these two features
+I would be able to create a simple function to vibrate the toy depending on how I saw fit.
+
+For example, I could bind souls in Dark Souls such that my toy buzzed whenever the count changed,
+or I could bind it to my lust in Tailbound, making it vibrate harder the higher it got.
+I think the most fun I had was with the `playermovementenabled` (set to false when having sex) in Skyrim.
+
+Linux makes reading memory incredibly easy. If you can open a file, then you can read memory in Linux:
+
+<div class="code">
+  def read_bytes_at_address(pid, address, width):
+    with open(f'/proc/{pid}/mem', 'rb', 0) as mem_file:
+        mem_file.seek(address)
+        return mem_file.read(width)
+
+</div>
+
+<h2>Nice UI</h2>I was in a wonderful world, but there was a problem.
+I had to copy offsets and bluetooth IDs from files, `pgrep` for process IDs, and swap around functions.
+So I did the only logical thing and gave it a UI, but instead of graphics, 
+I found <a href="https://pypi.org/project/simple-term-menu/">simple-term-menu</a> to work beautifully for the lists of options I wanted to pick from.
+
+I named this program "pup", mostly because it has three letters, but it's also almost kinky.
+pup has two modes, "fetch" and "play", to manage configuration and execution, respectively. 
+
+Play is obviously the mode I use more, but there isn't much to it.
+The program will simply, automatically detect what game I'm running,
+then it will prompt me for the offset I want to use, what toy I want to bind it to, and what mode to play in.
+
+In fetch, I can select a new bluetooth device and give it a name I'll remember.
+I can also type in the name of a game that I want the program to be able to detect later,
+and give that game offsets that can be used to bind to the fun stuff >:).
+The best part is all of this configuration is saved, so I'll be able to reinstall this program and all my setup by cloning the repo.
+
+<i>I am expecting to share regular commits as my lewd gaming shenanigans continue.</i>
+
+</pre>
