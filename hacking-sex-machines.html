@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="style.css">
+<title>Hacking Sex Machines</title>
+<h1>Hacking Sex Machines</h1>
+
+<pre style="overflow-x:auto;word-wrap:break-word;white-space:pre-wrap">
+Bluetooth sex toys are awkward to work with.
+In this entry, I will outline my process for figuring out what to do in order to crack into the fun.
+
+<h2>Connecting</h2>
+Connections are pretty weird.
+Programmatically connecting to Bluetooth devices requires a device address and the <a target="_blank" href="https://www.bluetooth.com/blog/a-developers-guide-to-bluetooth/">Characteristic</a> you will be playing with.
+Getting the device address is straightforward, since it is simply the device you want to play with.
+Characteristics however, are a bit annoying.
+Bluetooth devices can have very few Characteristics, or have Characteristics with good names, making it easy to guess which Characteristic is correct.
+However, some devices have many, nameless Characteristics, so finding the right one can be a chore.
+
+I run into a few issues with my personal setup.
+For starters, I don't have a VM set up for running apps (and my phone isn't rooted).
+Therefore, I cannot sniff the Bluetooth packets.
+<b>I highly recommend you go this route if you can easily set this up.</b>
+I also have a cheap, USB Bluetooth adapter, so my connections are very slow. 
+
+When connecting to a Bluetooth address, you can <a target="_blank" href="https://ianharvey.github.io/bluepy-doc/peripheral.html#getCharacteristics">look up the Characteristics</a> of the device.
+To help pick the right one, you may wish to <a target="_blank" href="https://ianharvey.github.io/bluepy-doc/peripheral.html#getCharacteristics">see what properties each Characteristic has</a>.
+We'll want to pick something that is writable, because we'll want to be able to tell the device what we want it to do.
+
+Another thing to note is that apps sometimes have the UUID for the Characteristic hardcoded.
+I was able to look this up by <a target="_blank" href="https://apkcombo.com/auxfun/com.auxfun.app/">downloading the app</a> and decompiling it using an <a target="_blank" href="https://www.decompiler.com/">online decompiler</a>.
+From there, you may be able to use grep to search for UUIDs:
+<code>
+  $ grep -ri bluetooth .
+  ...
+  ./com/hismith/hismithapp/utils/Constans.java:    public static final UUID UUID_BLUETOOTH_NAME_WRITE = UUID.fromString("0000ff91-0000-1000-8000-00805f9b34fb");
+</code>
+
+<i>I didn't type that wrong, that is the actual name of the file.
+<b>Do not expect good code from these apps.</b></i>
+
+<h2>The Protocol</h2>
+Another example of how Bluetooth is weird is the fact that the vendor can send whatever they like.
+You may encounter human readable messages, like with Lovense devices, such as "vibrate:1".
+However, you may also encounter binary data being written.
+The suggested solution of sniffing packets may not always work, because there could be a bizarre schemes like in the later example. 
+
+In the previous step, I mentioned downloading the app and decompiling it to look at the Bluetooth code.
+This can be very useful when dealing with binary messages (subject to code quality).
+For <a target="_blank" href="https://www.auxfun.co.uk/">Auxfun</a>, I found a few different methods to help me discover what data I should be sending.
+They have a very odd <a target="_blank" href="https://www.decompiler.com/jar/012755e0a2e9411e98c8bddbcaf191ee/Auxfun_1.2.4_apkcombo.com.apk/sources/com/hismith/hismithapp/product/ProductBaseControl.java">protocol</a>:
+
+1. Prepend 0xCC (I guess 0xAA is for something else I'm not using).
+2. The code for the action (such as 0x03 to control thrust speed).
+3. A parameter, if applicable (otherwise 0x00).
+4. The sum of the code for the action and the parameter (not sure if for bad encryption or for some sort of <a target="_blank" href="https://en.wikipedia.org/wiki/Parity_bit">parity scheme</a>?).
+
+This was all done from hex strings (which I guess the devs just had to memorize) getting converted to bytes.
+I guess the devs didn't know that you can just write hex literals in Java? 
+Code quality aside, the scheme was cracked.
+I could now perform the basic controls of my device.
+
+Stop: 0xCC 0x02 0x00 0x02
+Thrust Speed: 0xCC 0x03 N (0x03 + N)
+
+</pre>
